@@ -2,10 +2,8 @@
 <html lang="fr">
 <head>
   <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">
-
-  <title>Title dans index html(novo empressa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accueil</title>
   <!-- lien CSS pour ajouter avant </head> -->
   <link rel="stylesheet" href="styles.css">
 
@@ -16,18 +14,47 @@
   
 
   <!-- lien manifest RAW de GIT pour ajouter avant </head> -->
-  <link rel="manifest" href="https://raw.githubusercontent.com/RubMax/rubmax-servicos/refs/heads/main/manifest.json">
+  <link rel="manifest" href="https://raw.githubusercontent.com/RubMax/vraisGitmodel03/refs/heads/main/manifest.json">
  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-  
+  <header>
+    <div id="headerOverlay" class="header-overlay">
+      <img id="logo" class="logo" src="" alt="Logo">
+      <div class="header-center">
+        <h1 id="nomEntreprise"></h1>
+        <p id="slogant"></p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sidebar" id="sidebarMenu">
+    <a href="javascript:void(0)" class="active" onclick="filtrerParType('tous')">Menu</a>
+  </nav>
+
+  <div class="content-container">
+    <div id="servicesContainer"></div>
+    <footer>
+      
+      <p><span id="adresse"></span></p>
+      <p>Tél: <span id="telfix"></span> | WhatsApp: <span id="whatsapp"></span></p>
+      <p>Email: <span id="email"></span></p>
+      <p>Domaine: <span id="domaine"></span></p>
+    </footer>
+  </div>
+
 
 
 <script>
+let allServicesData = [];
+    let groupedServices = {};
+    let whatsappNumber = "";
+    const colors = ["#e74c3c", "#8e44ad", "#3498db", "#16a085", "#f39c12", "#d35400", "#2c3e50"];
 
       // Chargement des données =========================================================================lien scrip + ?page=data ============================================================================================= a la placede doget pour load donnees
       document.addEventListener('DOMContentLoaded', function() {
-  fetch('https://script.google.com/macros/s/AKfycbwoTyj8mpGYPfWCOxszGA-SPYTSBsJbJoHyFKgIr-b5xSAu-CO9pgE3bCebLGAWCVDnPg/exec?page=data')
+  fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/execc?page=data')
     .then(response => response.json())
     .then(displayProduits)
     .catch(err => {
@@ -38,7 +65,97 @@
 });
     
 
+function renderPage(data) {
+      allServicesData = data.services;
+      whatsappNumber = data.entete.whatsapp;
 
+      document.getElementById("nomEntreprise").innerText = data.entete.nomEntreprise;
+      document.getElementById("logo").src = data.entete.imgLogo;
+      document.getElementById("slogant").innerText = data.entete.slogant;
+      document.getElementById("headerOverlay").style.backgroundImage = `url('${data.entete.imgEntete}')`;
+      document.getElementById("adresse").innerText = data.entete.adresse;
+      document.getElementById("telfix").innerText = data.entete.telFix;
+      document.getElementById("whatsapp").innerText = data.entete.whatsapp;
+      document.getElementById("email").innerText = data.entete.email;
+      document.getElementById("domaine").innerText = data.entete.domaine;
+
+      groupedServices = {};
+      const sidebarMenu = document.getElementById("sidebarMenu");
+      const typesAjoutes = new Set();
+
+      let colorIndex = 0;
+
+      data.services.forEach(service => {
+        if (!groupedServices[service.type]) groupedServices[service.type] = [];
+        groupedServices[service.type].push(service);
+
+        if (!typesAjoutes.has(service.type)) {
+          const link = document.createElement("a");
+          link.href = "javascript:void(0)";
+          link.textContent = service.type;
+          link.style.backgroundColor = colors[colorIndex % colors.length];
+          link.dataset.originalColor = colors[colorIndex % colors.length];
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            filtrerParType(service.type);
+          });
+          sidebarMenu.appendChild(link);
+          typesAjoutes.add(service.type);
+          colorIndex++;
+        }
+      });
+
+      afficherArticles(data.services, "Menu");
+    }
+
+    function afficherArticles(liste, titre) {
+      const container = document.getElementById("servicesContainer");
+      container.innerHTML = "";
+
+      const sectionTitle = document.createElement("div");
+      sectionTitle.className = "section-title";
+      sectionTitle.textContent = titre;
+      container.appendChild(sectionTitle);
+
+      const cards = document.createElement("div");
+      cards.className = "cards-container";
+
+      liste.forEach(service => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${service.img}" alt="${service.nom}">
+          <div class="card-body">
+            <div class="card-title">${service.nom}</div>
+            <div class="card-desc">${service.description}</div>
+            <div class="card-price">R$ ${service.prix}</div>
+          </div>
+        `;
+        cards.appendChild(card);
+      });
+
+      container.appendChild(cards);
+    }
+
+    function filtrerParType(type) {
+      const links = document.querySelectorAll("#sidebarMenu a");
+      links.forEach(link => {
+        link.classList.remove("active");
+        link.style.backgroundColor = link.dataset.originalColor;
+        link.style.color = "white";
+        if (link.textContent === type || (type === 'tous' && link.textContent === 'Menu')) {
+          link.classList.add("active");
+          link.style.backgroundColor = "white";
+          link.style.color = "black";
+        }
+      });
+
+      if (type === 'tous') {
+        afficherArticles(allServicesData, "Menu");
+      } else {
+        afficherArticles(groupedServices[type] || [], type);
+      }
+    }
 
 
 
