@@ -1,6 +1,6 @@
 {
-  "name": "Mome In Manifest App",
-  "short_name": "MomeShotcutInManifest",
+  "name": "Nom Entreprise App",
+  "short_name": "Nom Entreprise",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
