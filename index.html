@@ -53,16 +53,20 @@ let allServicesData = [];
     const colors = ["#e74c3c", "#8e44ad", "#3498db", "#16a085", "#f39c12", "#d35400", "#2c3e50"];
 
       // Chargement des données =========================================================================lien scrip + ?page=data ============================================================================================= a la placede doget pour load donnees
-      document.addEventListener('DOMContentLoaded', function() {
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQWTlKHTAiR3wWiyYkvXWyT1vwlmPH6hRPvrfkfpJmVa0oqDAzlxTmgQSTKSQsPST9NAPil9kPH1yHj/pub?gid=0&single=true&output=csv')
+ 
+      
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/execc?page=data')
     .then(response => response.json())
     .then(displayProduits)
     .catch(err => {
-      document.getElementById("produits").innerHTML =
-        "<div class='alert alert-danger'>"+err.message+"</div>";
+      document.getElementById("ENTETE").innerHTML =
+        "<div class='alert alert-danger'>Erreur de chargement des données</div>";
     });
+
   setupHorizontalDragScroll();
 });
+
     
 
 function renderPage(data) {
