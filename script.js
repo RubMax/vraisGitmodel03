@@ -22,20 +22,22 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
-fetch(API_URL)
+fetch(apiURL)
   .then(res => res.json())
   .then(renderPage)
-  .catch(err => alert("Erreur de chargement : " + err.message));
+  .catch(err => alert("Erreur : " + err.message));
 
 function renderPage(data) {
-  const entete = data.entete;
+  const ent = data.entete;
 
-  document.getElementById("nomEntreprise").textContent = entete.nomEntreprise;
-  document.getElementById("slogant").textContent = entete.slogant;
-  document.getElementById("logo").src = entete.imgLogo;
-  document.getElementById("adresse").textContent = entete.adresse;
-  document.getElementById("whatsapp").textContent = entete.whatsapp;
-  document.getElementById("email").textContent = entete.email;
+  document.getElementById("nomEntreprise").textContent = ent.nomEntreprise;
+  document.getElementById("logo").src = ent.imgLogo;
+  document.getElementById("slogant").textContent = ent.slogant;
+  document.getElementById("adresse").textContent = ent.adresse;
+  document.getElementById("telFix").textContent = ent.telFix;
+  document.getElementById("whatsapp").textContent = ent.whatsapp;
+  document.getElementById("email").textContent = ent.email;
+  document.getElementById("domaine").textContent = ent.domaine;
 
   const container = document.getElementById("servicesContainer");
   container.innerHTML = "";
@@ -44,9 +46,9 @@ function renderPage(data) {
     card.className = "card";
     card.innerHTML = `
       <h3>${service.nom}</h3>
-      <img src="${service.img}" alt="${service.nom}">
+      <img src="${service.img}" style="width:100%;max-height:200px;">
       <p>${service.description}</p>
-      <p><strong>Prix:</strong> R$ ${service.prix}</p>
+      <strong>Prix: R$ ${service.prix}</strong>
     `;
     container.appendChild(card);
   });
