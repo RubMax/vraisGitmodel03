@@ -1,49 +1,12 @@
 const SHEET_NAME = "ENTETE";
 
-/* Fetche obigatoire avec lien app scrip +?page=api */
-fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=api')
-  .then(res => res.json())
-  /* **********important fonctio affich************* */
-  .then(afficherArticles);
-  
-  
-  return HtmlService
-    .createHtmlOutputFromFile("index")
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+/**
+ * Point d’entrée principal : gère les requêtes GET
+ */
+function doGet(e) {
+  const page = e?.parameter?.page || null;
 
-
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
-}
-
-/*function getData() {
-  try {
-    ============== si cest diff ici il faut maudifier================
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-    const rows = sheet.getDataRange().getValues();
-    rows.shift();
-    return rows.map(r => ({
-      section:     r[0],
-      nom:         r[1],
-      image:       r[2],
-      description: r[3],
-      prix:        (typeof r[4] === 'number') ? r[4].toString().replace('.', ',') : (r[4] || ""),
-      tailles:     r[5] || "",
-      code:        r[6] || "",
-      pub:         r[7] || "", // Colonne H - contenu de la pub
-      pubInterval: isNaN(r[8]) ? 25000 : r[8] * 1000 // Colonne I - intervalle en secondes
-    }));
-  } catch (err) {
-    throw new Error("Erreur getData: " + err.message);
-  }
-}
-
-function saveData(data) {*/
- 
- function doGet(e) {
-  const page = e && e.parameter && e.parameter.page ? e.parameter.page : null;
-
-  // Endpoint DATA pour GitHub Pages (retourne le JSON de la feuille)
+  // Endpoint pour récupérer les données en JSON (ex: ?page=data)
   if (page === "data") {
     try {
       const data = getData();
@@ -52,38 +15,47 @@ function saveData(data) {*/
         .setMimeType(ContentService.MimeType.JSON);
     } catch (err) {
       return ContentService
-        .createTextOutput(JSON.stringify({error: err.message}))
+        .createTextOutput(JSON.stringify({ error: err.message }))
         .setMimeType(ContentService.MimeType.JSON);
     }
   }
 
-  // Par défaut, message d'accueil de l'API
+  // Par défaut : retourne la page HTML index (utile pour testing ou Admin)
   return HtmlService
-    .createHtmlOutput("RubMax Servicos API en ligne")
+    .createHtmlOutputFromFile("index")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+
 /**
- * Inclure un fichier HTML (optionnel, utile pour admin ou index)
+ * Récupère les données de la feuille ENTETE pour affichage dans GitHub
  */
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+function getData() {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const rows = sheet.getDataRange().getValues();
+    rows.shift(); // Enlève l’en-tête
+
+    return rows.map(r => ({
+      section:     r[0],
+      nom:         r[1],
+      image:       r[2],
+      description: r[3],
+      prix:        (typeof r[4] === 'number') ? r[4].toString().replace('.', ',') : (r[4] || ""),
+      tailles:     r[5] || "",
+      code:        r[6] || "",
+      pub:         r[7] || "",
+      pubInterval: isNaN(r[8]) ? 25000 : r[8] * 1000
+    }));
+  } catch (err) {
+    throw new Error("Erreur getData: " + err.message);
+  }
 }
 
 
-
-
-
-
-
-
-
-
-function getWhatsAppNumber() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  return sheet.getRange("A7").getValue(); // Récupère la valeur de la cellule A7
-}
-
+/**
+ * Récupère les données d’en-tête + services pour une page personnalisée (index)
+ */
 function getIndexData() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
@@ -101,7 +73,7 @@ function getIndexData() {
 
   const data = sheet.getRange("B3:F" + sheet.getLastRow()).getValues();
   const services = data
-    .filter(row => row[0]) // s'assurer que le type existe
+    .filter(row => row[0]) // Vérifie que le type existe
     .map(row => ({
       type: row[0],
       img: formatImage(row[1]),
@@ -113,7 +85,10 @@ function getIndexData() {
   return { entete, services };
 }
 
-// Convertit les liens Google Drive ou autres vers un format utilisable
+
+/**
+ * Format les URLs d'image (Drive ou lien direct)
+ */
 function formatImage(url) {
   if (!url) return "https://iili.io/F3yIWCb.png"; // Image par défaut
   if (url.includes("drive.google.com")) {
@@ -123,3 +98,19 @@ function formatImage(url) {
   return url;
 }
 
+
+/**
+ * Récupère le numéro WhatsApp (depuis cellule A7)
+ */
+function getWhatsAppNumber() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  return sheet.getRange("A7").getValue();
+}
+
+
+/**
+ * Inclut un fichier HTML dans un autre (ex: pour `index.html`)
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
