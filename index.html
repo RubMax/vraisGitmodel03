@@ -59,13 +59,22 @@
         google.script.run.withSuccessHandler(renderPage).getIndexData();
       } else {
         fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=data')
-          .then(res => res.json())
-          .then(data => renderPage({ entete: { nomEntreprise: "", imgLogo: "", imgEntete: "", slogant: "", adresse: "", telFix: "", whatsapp: "", email: "", domaine: "" }, services: data }))
-          .catch(err => {
-            document.getElementById("servicesContainer").innerHTML = "<div class='error'>Erreur de chargement : " + err.message + "</div>";
-          });
-      }
-    });
+  .then(res => res.json())
+  .then(serviceArray => {
+    const fakeEntete = {
+      nomEntreprise: "RubMax",
+      imgLogo: "",
+      imgEntete: "",
+      slogant: "Votre partenaire de confiance",
+      adresse: "",
+      telFix: "",
+      whatsapp: "",
+      email: "",
+      domaine: ""
+    };
+    renderPage({ entete: fakeEntete, services: serviceArray });
+  })
+
 
     // --- Affiche la page avec les données chargées
     function renderPage(data) {
