@@ -3,8 +3,9 @@
 const apiURL = 'https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=data';
 
 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=data';
 
-let deferredPrompt;
+let deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -15,8 +16,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
 document.getElementById('installAppBtn').addEventListener('click', () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      document.getElementById('installAppBtn').style.display = 'none';
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        document.getElementById('installAppBtn').style.display = 'none';
+      }
       deferredPrompt = null;
     });
   }
@@ -26,22 +29,23 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
 
-fetch(apiURL)
+fetch(API_URL)
   .then(res => res.json())
   .then(renderPage)
-  .catch(err => alert("Erreur : " + err.message));
+  .catch(err => alert("Erreur de chargement des données : " + err.message));
 
 function renderPage(data) {
-  const ent = data.entete;
+  const entete = data.entete;
 
-  document.getElementById("nomEntreprise").textContent = ent.nomEntreprise;
-  document.getElementById("logo").src = ent.imgLogo;
-  document.getElementById("slogant").textContent = ent.slogant;
-  document.getElementById("adresse").textContent = ent.adresse;
-  document.getElementById("telFix").textContent = ent.telFix;
-  document.getElementById("whatsapp").textContent = ent.whatsapp;
-  document.getElementById("email").textContent = ent.email;
-  document.getElementById("domaine").textContent = ent.domaine;
+  document.getElementById("nomEntreprise").textContent = entete.nomEntreprise;
+  document.getElementById("slogant").textContent = entete.slogant;
+  document.getElementById("logo").src = entete.imgLogo;
+  document.getElementById("mainHeader").style.backgroundImage = `url('${entete.imgEntete}')`;
+  document.getElementById("adresse").textContent = entete.adresse;
+  document.getElementById("whatsapp").textContent = entete.whatsapp;
+  document.getElementById("email").textContent = entete.email;
+  document.getElementById("telFix").textContent = entete.telFix || "";
+  document.getElementById("domaine").textContent = entete.domaine || "";
 
   const container = document.getElementById("servicesContainer");
   container.innerHTML = "";
@@ -50,9 +54,9 @@ function renderPage(data) {
     card.className = "card";
     card.innerHTML = `
       <h3>${service.nom}</h3>
-      <img src="${service.img}" style="width:100%;max-height:200px;">
+      <img src="${service.img}" alt="${service.nom}">
       <p>${service.description}</p>
-      <strong>Prix: R$ ${service.prix}</strong>
+      <p><strong>Prix:</strong> R$ ${service.prix}</p>
     `;
     container.appendChild(card);
   });
