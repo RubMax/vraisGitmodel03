@@ -1,324 +1,126 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  
- <base target="_top">
+  <meta charset="UTF-8">
+  <title>RubMax Servicos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-<!-- manifest et css obligatoire apres .com/RubMax/ajouterNomRepsito-->
-  <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="https://raw.githubusercontent.com/RubMax/vraisGitmodel03/refs/heads/main/manifest.json">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-
-<body>
-  
-  <!-- En-tête fixe -->
-  
-
-
-  <!-- Contenu principal -->
-   <header>
-    <div id="headerOverlay" class="header-overlay">
-      <img id="logo" class="logo" src="" alt="Logo">
-      <div class="header-center">
-        <h1 id="nomEntreprise"></h1>
-        <p id="slogant"></p>
-      </div>
-    </div>
-  </header>
-
-  <nav class="sidebar" id="sidebarMenu">
-    <a href="javascript:void(0)" class="active" onclick="filtrerParType('tous')">Menu</a>
-  </nav>
-
-  <div class="content-container">
-    <div id="servicesContainer"></div>
-    <footer>
-      
-      <p><span id="adresse"></span></p>
-      <p>Tél: <span id="telfix"></span> | WhatsApp: <span id="whatsapp"></span></p>
-      <p>Email: <span id="email"></span></p>
-      <p>Domaine: <span id="domaine"></span></p>
-    </footer>
-  </div>
-
-<script>
-  // reste au debut -->
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
-      self.addEventListener('install', function(e) { self.skipWaiting(); });
-      self.addEventListener('activate', function(e) { });
-      self.addEventListener('fetch', function(event) {
-        event.respondWith(fetch(event.request));
-      });
-    `], {type: 'application/javascript'})));
-  });
-}
-
-
-    // les Variable declaration 
-    let allServicesData = [];
-    let groupedServices = {};
-    let whatsappNumber = "";
-    const colors = ["#e74c3c", "#8e44ad", "#3498db", "#16a085", "#f39c12", "#d35400", "#2c3e50"];
-
-    document.addEventListener("DOMContentLoaded", function () {
-      google.script.run.withSuccessHandler(renderPage).getIndexData();
-    });
-
-    function renderPage(data) {
-      allServicesData = data.services;
-      whatsappNumber = data.entete.whatsapp;
-
-      document.getElementById("nomEntreprise").innerText = data.entete.nomEntreprise;
-      document.getElementById("logo").src = data.entete.imgLogo;
-      document.getElementById("slogant").innerText = data.entete.slogant;
-      document.getElementById("headerOverlay").style.backgroundImage = `url('${data.entete.imgEntete}')`;
-      document.getElementById("adresse").innerText = data.entete.adresse;
-      document.getElementById("telfix").innerText = data.entete.telFix;
-      document.getElementById("whatsapp").innerText = data.entete.whatsapp;
-      document.getElementById("email").innerText = data.entete.email;
-      document.getElementById("domaine").innerText = data.entete.domaine;
-
-      groupedServices = {};
-      const sidebarMenu = document.getElementById("sidebarMenu");
-      const typesAjoutes = new Set();
-
-      let colorIndex = 0;
-
-      data.services.forEach(service => {
-        if (!groupedServices[service.type]) groupedServices[service.type] = [];
-        groupedServices[service.type].push(service);
-
-        if (!typesAjoutes.has(service.type)) {
-          const link = document.createElement("a");
-          link.href = "javascript:void(0)";
-          link.textContent = service.type;
-          link.style.backgroundColor = colors[colorIndex % colors.length];
-          link.dataset.originalColor = colors[colorIndex % colors.length];
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            filtrerParType(service.type);
-          });
-          sidebarMenu.appendChild(link);
-          typesAjoutes.add(service.type);
-          colorIndex++;
-        }
-      });
-
-      afficherArticles(data.services, "Menu");
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
     }
 
-    function afficherArticles(liste, titre) {
-      const container = document.getElementById("servicesContainer");
-      container.innerHTML = "";
+    header {
+      background: #333;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
 
-      const sectionTitle = document.createElement("div");
-      sectionTitle.className = "section-title";
-      sectionTitle.textContent = titre;
-      container.appendChild(sectionTitle);
+    .entete {
+      text-align: center;
+      padding: 2rem;
+      background: white;
+    }
 
-      const cards = document.createElement("div");
-      cards.className = "cards-container";
+    .entete img {
+      max-width: 150px;
+      border-radius: 50%;
+    }
 
-      liste.forEach(service => {
+    .infos {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #444;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .card img {
+      max-width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .card h3 {
+      margin: 0.5rem 0;
+      color: #333;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .prix {
+      margin-top: 0.5rem;
+      font-weight: bold;
+      color: #008000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="nomEntreprise">Chargement...</h1>
+  </header>
+
+  <div class="entete">
+    <img id="logo" src="" alt="Logo">
+    <div class="infos" id="infosEntreprise"></div>
+  </div>
+
+  <div class="services" id="services">
+    <!-- Cartes services -->
+  </div>
+
+  <script>
+    function afficherIndex(data) {
+      // Entête
+      document.getElementById("nomEntreprise").textContent = data.entete.nomEntreprise;
+      document.getElementById("logo").src = data.entete.imgLogo;
+
+      const infos = `
+        <p><strong>${data.entete.slogant}</strong></p>
+        <p>📍 ${data.entete.adresse}</p>
+        <p>📞 ${data.entete.telFix} | 📱 WhatsApp: ${data.entete.whatsapp}</p>
+        <p>✉️ ${data.entete.email}</p>
+        <p>🌐 ${data.entete.domaine}</p>
+      `;
+      document.getElementById("infosEntreprise").innerHTML = infos;
+
+      // Services
+      const servicesContainer = document.getElementById("services");
+      data.services.forEach(service => {
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
           <img src="${service.img}" alt="${service.nom}">
-          <div class="card-body">
-            <div class="card-title">${service.nom}</div>
-            <div class="card-desc">${service.description}</div>
-            <div class="card-price">R$ ${service.prix}</div>
-          </div>
+          <h3>${service.nom}</h3>
+          <p>${service.description}</p>
+          <div class="prix">${service.prix ? "R$ " + service.prix : ""}</div>
         `;
-        cards.appendChild(card);
+        servicesContainer.appendChild(card);
       });
-
-      container.appendChild(cards);
     }
 
-    function filtrerParType(type) {
-      const links = document.querySelectorAll("#sidebarMenu a");
-      links.forEach(link => {
-        link.classList.remove("active");
-        link.style.backgroundColor = link.dataset.originalColor;
-        link.style.color = "white";
-        if (link.textContent === type || (type === 'tous' && link.textContent === 'Menu')) {
-          link.classList.add("active");
-          link.style.backgroundColor = "white";
-          link.style.color = "black";
-        }
-      });
-
-      if (type === 'tous') {
-        afficherArticles(allServicesData, "Menu");
-      } else {
-        afficherArticles(groupedServices[type] || [], type);
-      }
-    }
-    
-    
-      // Chargement des données obligatoire pour git
-      document.addEventListener('DOMContentLoaded', function() {
-        // lien partage de app script
-  fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=data')
-    .then(response => response.json())
-    // nom foction qui affiche les produit*****************
-    .then(afficherArticles)
-    .catch(err => {
-      // nom de la feille sheet ou les info sont enregistrees************
-      document.getElementById("ENTETE").innerHTML =
-        "<div class='alert alert-danger'>"+err.message+"</div>";
-    });
-  setupHorizontalDragScroll();
-});
-
-
-// les fonctions reste les memes
-    
-
-
-   
-    
-    
-   // focntion qui affiche les preduits 
-
-     
-
-    
-    
-    
-// ============ cest codes retent=================================== =======================================================================
-// Vérifier la taille de l'écran au chargement
-window.addEventListener('load', checkScreenSize);
-
-// Vérifier aussi lors du redimensionnement
-window.addEventListener('resize', checkScreenSize);
-
-
-document.getElementById('atalhoBtn').addEventListener('click', function() {
-  // Vérifier si le navigateur supporte l'API d'installation
-  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    alert('L\'application est déjà installée sur votre écran d\'accueil!');
-    return;
-  }
-
-  // Fonction pour afficher les instructions d'installation
-  function showInstallInstructions() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/.test(navigator.userAgent);
-    
-    let instructions = '';
-    
-    if (isIOS) {
-      instructions = `
-        <div style="text-align: center; padding: 20px;">
-          <h3>Pour ajouter à l'écran d'accueil :</h3>
-          <p>1. Appuyez sur le bouton "Partager"</p>
-          <p>2. Sélectionnez "Sur l'écran d'accueil"</p>
-          <p>3. Appuyez sur "Ajouter"</p>
-          <img src="https://i.imgur.com/9z2wDf1.png" style="max-width: 200px; margin-top: 10px;">
-        </div>
-      `;
-    } else if (isAndroid) {
-      instructions = `
-        <div style="text-align: center; padding: 20px;">
-          <h3>Pour ajouter à l'écran d'accueil :</h3>
-          <p>1. Appuyez sur les trois points en haut à droite</p>
-          <p>2. Sélectionnez "Ajouter à l'écran d'accueil"</p>
-          <p>3. Confirmez l'installation</p>
-          <img src="https://i.imgur.com/7XbJ2uQ.png" style="max-width: 200px; margin-top: 10px;">
-        </div>
-      `;
-    } else {
-      instructions = '<p>Cette fonctionnalité est disponible uniquement sur mobile.</p>';
-    }
-    
-    const popup = document.createElement('div');
-    popup.style.position = 'fixed';
-    popup.style.top = '0';
-    popup.style.left = '0';
-    popup.style.width = '100%';
-    popup.style.height = '100%';
-    popup.style.backgroundColor = 'rgba(0,0,0,0.9)';
-    popup.style.display = 'flex';
-    popup.style.justifyContent = 'center';
-    popup.style.alignItems = 'center';
-    popup.style.zIndex = '9999';
-    popup.style.color = 'white';
-    popup.style.fontSize = '1.2em';
-    
-    popup.innerHTML = `
-      <div style="background: #fff; color: #333; padding: 20px; border-radius: 10px; max-width: 90%;">
-        ${instructions}
-        <button style="margin-top: 20px; padding: 10px 20px; background: #83addc; color: white; border: none; border-radius: 5px; cursor: pointer;">
-          Fermer
-        </button>
-      </div>
-    `;
-    
-    popup.querySelector('button').addEventListener('click', () => {
-      document.body.removeChild(popup);
-    });
-    
-    document.body.appendChild(popup);
-  }
-
-  // Vérifier si l'API d'installation est disponible
-  if ('BeforeInstallPromptEvent' in window) {
-    let deferredPrompt;
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Empêcher l'affichage automatique du prompt
-      e.preventDefault();
-      // Stocker l'événement pour l'utiliser plus tard
-      deferredPrompt = e;
-      
-      // Afficher le prompt d'installation
-      deferredPrompt.prompt();
-      
-      // Attendre la réponse de l'utilisateur
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('L\'utilisateur a accepté l\'installation');
-        } else {
-          console.log('L\'utilisateur a refusé l\'installation');
-        }
-        deferredPrompt = null;
-      });
-    });
-  } else {
-    // Si l'API n'est pas disponible, afficher les instructions manuelles
-    showInstallInstructions();
-  }
-});
+    // Récupère les données via Apps Script
+    google.script.run.withSuccessHandler(afficherIndex).getIndexData();
   </script>
-  <button id="installAppBtn" style="display:none;position:fixed;bottom:30px;right:30px;padding:15px 22px;background:#83addc;color:#fff;border:none;border-radius:8px;font-size:1.2em;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,0.15);cursor:pointer;">
-  Installer RubMax Servicos
-</button>
-
-<script>
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installAppBtn').style.display = 'block';
-});
-
-document.getElementById('installAppBtn').addEventListener('click', () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        document.getElementById('installAppBtn').style.display = 'none';
-      }
-      deferredPrompt = null;
-    });
-  }
-});
-</script>
 </body>
 </html>
