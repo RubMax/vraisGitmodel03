@@ -6,9 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    header {
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+    header::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    header * {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-  <header>
+  <header id="mainHeader">
     <img id="logo" class="logo" src="" alt="Logo">
     <h1 id="nomEntreprise"></h1>
     <p id="slogant"></p>
@@ -29,6 +49,10 @@
 
   <button id="installAppBtn" style="display:none;">Installer l'application</button>
 
+  <script>
+    // Exemple de mise à jour du background dans script.js :
+    // document.getElementById("mainHeader").style.backgroundImage = `url('${data.entete.imgEntete}')`;
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
