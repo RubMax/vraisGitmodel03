@@ -47,17 +47,5 @@ function renderPage(data) {
   document.getElementById("telFix").textContent = entete.telFix || "";
   document.getElementById("domaine").textContent = entete.domaine || "";
 
-  const container = document.getElementById("servicesContainer");
-  container.innerHTML = "";
-  data.services.forEach(service => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>${service.nom}</h3>
-      <img src="${service.img}" alt="${service.nom}">
-      <p>${service.description}</p>
-      <p><strong>Prix:</strong> R$ ${service.prix}</p>
-    `;
-    container.appendChild(card);
-  });
+  
 }
