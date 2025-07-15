@@ -58,7 +58,7 @@
       if (typeof google !== "undefined") {
         google.script.run.withSuccessHandler(renderPage).getIndexData();
       } else {
-        fetch('https://script.google.com/macros/s/TON_ID_SCRIPT/exec?page=data')
+        fetch('https://script.google.com/macros/s/AKfycbwJQO-cpguteF38PtytHKWWqZyoUR61tQoRz4Vyzh98vT4tcItVxZ00TOdcE9ihjmjj/exec?page=data')
           .then(res => res.json())
           .then(data => renderPage({ entete: { nomEntreprise: "", imgLogo: "", imgEntete: "", slogant: "", adresse: "", telFix: "", whatsapp: "", email: "", domaine: "" }, services: data }))
           .catch(err => {
