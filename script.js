@@ -18,16 +18,36 @@ fetch(API_URL)
     document.getElementById("domaine").textContent = entete.domaine;
 
     const container = document.getElementById("servicesContainer");
+    container.innerHTML = "";
+
+    const groupes = {};
+
+    // Grouper les services par type
     data.services.forEach(service => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h3>${service.nom}</h3>
-        <img src="${service.img}" alt="${service.nom}" style="width:100%;max-height:200px;object-fit:cover;">
-        <p>${service.description}</p>
-        <p><strong>Prix:</strong> R$ ${service.prix}</p>
-      `;
-      container.appendChild(card);
+      if (!groupes[service.type]) groupes[service.type] = [];
+      groupes[service.type].push(service);
+    });
+
+    // Affichage par groupe
+    Object.keys(groupes).forEach(type => {
+      const typeTitle = document.createElement("h2");
+      typeTitle.textContent = type;
+      typeTitle.style.textAlign = "center";
+      typeTitle.style.color = "#007BFF";
+      typeTitle.style.fontWeight = "bold";
+      container.appendChild(typeTitle);
+
+      groupes[type].forEach(service => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${service.nom}</h3>
+          <img src="${service.img}" alt="${service.nom}" style="width:100%;max-height:200px;object-fit:cover;">
+          <p>${service.description}</p>
+          <p><strong>Prix:</strong> R$ ${service.prix}</p>
+        `;
+        container.appendChild(card);
+      });
     });
   })
   .catch(err => alert("Erreur: " + err.message));
