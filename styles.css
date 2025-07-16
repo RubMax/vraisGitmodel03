@@ -4,14 +4,7 @@ body {
   padding: 0;
 }
 
-header#mainHeader {
-  background-size: cover;
-  background-position: center;
-  color: white;
-  text-align: center;
-  padding: 2rem;
-  position: relative;
-}
+
 
 header .overlay {
   background-color: rgba(0, 0, 0, 0.6);
